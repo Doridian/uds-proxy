@@ -31,7 +31,6 @@ func main() {
 
 	flag.StringVar(&args.PidFile, "pid-file", "", "pid file to use, none if empty")
 	flag.StringVar(&args.SocketPath, "socket", os.Getenv("UDS_PROXY_SOCKET"), "path of socket to create")
-	flag.StringVar(&args.PrometheusPort, "prometheus-port", "", "Prometheus monitoring port, e.g. :18080")
 
 	flag.Parse()
 

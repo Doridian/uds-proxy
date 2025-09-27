@@ -20,8 +20,6 @@ import (
 	"time"
 
 	"github.com/joeshaw/peercred"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // AppVersion is set at compile time via make / ldflags
@@ -31,14 +29,12 @@ var AppVersion = "0.8.x-dev"
 type Instance struct {
 	Options    Settings
 	HTTPClient *http.Client
-	metrics    appMetrics
 }
 
 // Settings configure a Instance and need to be passed to NewProxyInstance().
 type Settings struct {
 	SocketPath          string
 	PidFile             string
-	PrometheusPort      string
 	ClientTimeout       int
 	MaxConnsPerHost     int
 	MaxIdleConns        int
@@ -72,10 +68,6 @@ func NewProxyInstance(args Settings) *Instance {
 
 	proxyInstance := Instance{}
 	proxyInstance.Options = args
-	if args.PrometheusPort != "" {
-		proxyInstance.setupMetrics()
-	}
-	proxyInstance.HTTPClient = newHTTPClient(&proxyInstance.Options, proxyInstance.metrics.enabled)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -86,9 +78,6 @@ func NewProxyInstance(args Settings) *Instance {
 
 // Run starts the proxy's socket server accept loop, which will run until Shutdown() is called.
 func (proxy *Instance) Run() {
-	if proxy.metrics.enabled {
-		go proxy.startPrometheusMetricsServer()
-	}
 	proxy.startSocketServerAcceptLoop()
 }
 
@@ -117,14 +106,6 @@ func (proxy *Instance) startSocketServerAcceptLoop() {
 		WriteTimeout: time.Duration(proxy.Options.SocketWriteTimeout) * time.Millisecond,
 		Handler:      http.HandlerFunc(proxy.handleProxyRequest),
 		ConnContext:  ConnContext,
-	}
-
-	if proxy.metrics.enabled {
-		server.Handler = promhttp.InstrumentHandlerInFlight(proxy.metrics.RequestsInflight,
-			promhttp.InstrumentHandlerCounter(proxy.metrics.RequestsCounter,
-				promhttp.InstrumentHandlerDuration(proxy.metrics.RequestsDuration,
-					promhttp.InstrumentHandlerResponseSize(proxy.metrics.RequestsSize,
-						http.HandlerFunc(proxy.handleProxyRequest)))))
 	}
 
 	if !proxy.Options.NoAccessLog {
@@ -198,7 +179,7 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 	backendResponse.Body.Close()
 }
 
-func newHTTPClient(opt *Settings, metricsEnabled bool) (client *http.Client) {
+func newHTTPClient(opt *Settings) (client *http.Client) {
 	transport := http.Transport{
 		MaxConnsPerHost:       opt.MaxConnsPerHost,
 		MaxIdleConns:          opt.MaxIdleConns,
@@ -213,9 +194,6 @@ func newHTTPClient(opt *Settings, metricsEnabled bool) (client *http.Client) {
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
-	}
-	if metricsEnabled {
-		client.Transport = getTracingRoundTripper(&transport)
 	}
 	return
 }
