@@ -6,6 +6,7 @@ pooling. Optionally, the proxy can expose metrics via prometheus client library.
 package proxy
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"log"
@@ -46,6 +47,7 @@ type Settings struct {
 	NoLogTimeStamps     bool
 	RemoteHTTPS         bool
 	ForceRemoteHost     string
+	InsecureSkipVerify  bool
 }
 
 // NewProxyInstance validates supplied Settings and returns a ready-to-run proxy instance.
@@ -189,6 +191,7 @@ func newHTTPClient(opt *Settings) (client *http.Client) {
 		IdleConnTimeout:       time.Duration(opt.IdleConnTimeout) * time.Millisecond,
 		TLSHandshakeTimeout:   5 * time.Second,
 		ExpectContinueTimeout: 5 * time.Second,
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: opt.InsecureSkipVerify},
 	}
 	client = &http.Client{
 		Timeout:   time.Duration(opt.ClientTimeout) * time.Millisecond,

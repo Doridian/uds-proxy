@@ -19,6 +19,7 @@ func main() {
 	flag.BoolVar(&args.PrintVersion, "version", false, "print uds-proxy version")
 	flag.BoolVar(&args.RemoteHTTPS, "remote-https", false, "remote uses https://")
 	flag.StringVar(&args.ForceRemoteHost, "force-remote-host", "", "force all requests to be sent to this host (name or ip)")
+	flag.BoolVar(&args.InsecureSkipVerify, "insecure-skip-verify", false, "skip TLS certificate verification for remote https connections")
 
 	flag.IntVar(&args.MaxConnsPerHost, "max-conns-per-host", 20, "maximum number of connections per backend host")
 	flag.IntVar(&args.MaxIdleConns, "max-idle-conns", 100, "maximum number of idle HTTP(S) connections")
