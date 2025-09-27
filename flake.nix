@@ -14,7 +14,7 @@
             pname = "uds-proxy";
             version = "0.1.0";
             src = ./.;
-            vendorHash = "sha256-sJ7zGgRoznzVgemFliF02uaPLIXaAAjz21movPsAJ8E=";
+            vendorHash = "sha256-raKARqHxii5Qmi+khIjacz7ZPzhNF6nkOl2/UriNYaU=";
             buildInputs = [];
           };
         };
