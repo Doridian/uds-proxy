@@ -141,27 +141,27 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 
 	conn := GetNetConn(clientRequest)
 	cred, err := peercred.Read(conn.(*net.UnixConn))
-	if err == nil {
-		uidStr := fmt.Sprintf("%d", cred.UID)
-		usr, err := user.LookupId(uidStr)
-		if err == nil {
-			backendRequest.Header.Set("X-Auth-User", usr.Username)
-		} else {
-			http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		gidStr := fmt.Sprintf("%d", cred.GID)
-		group, err := user.LookupGroupId(gidStr)
-		if err == nil {
-			backendRequest.Header.Set("X-Auth-Group", group.Name)
-		} else {
-			http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
+	if err != nil {
 		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	uidStr := fmt.Sprintf("%d", cred.UID)
+	usr, err := user.LookupId(uidStr)
+	if err != nil {
+		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	backendRequest.Header.Set("X-Auth-User", usr.Username)
+	gidStr := fmt.Sprintf("%d", cred.GID)
+	group, err := user.LookupGroupId(gidStr)
+	if err != nil {
+		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	backendRequest.Header.Set("X-Auth-Group", group.Name)
 
 	backendRequest.Header.Del("X-Auth-Roles")
 	backendRequest.Header.Set("X-Forwarded-For", "127.0.0.1")
