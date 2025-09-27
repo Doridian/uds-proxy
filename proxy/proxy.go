@@ -135,7 +135,6 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 	}
 	backendRequest.Host = clientRequest.Host
 	backendRequest.Header = clientRequest.Header
-	backendRequest.Header.Set("X-Request-Via", "uds-proxy")
 
 	conn := GetNetConn(clientRequest)
 	cred, err := peercred.Read(conn.(*net.UnixConn))
@@ -172,8 +171,10 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 
 	for k, v := range backendResponse.Header {
 		clientResponseWriter.Header().Set(k, v[0])
+		for _, vv := range v[1:] {
+			clientResponseWriter.Header().Add(k, vv)
+		}
 	}
-	clientResponseWriter.Header().Set("X-Response-Via", "uds-proxy")
 	clientResponseWriter.WriteHeader(backendResponse.StatusCode)
 	io.Copy(clientResponseWriter, backendResponse.Body)
 	backendResponse.Body.Close()
