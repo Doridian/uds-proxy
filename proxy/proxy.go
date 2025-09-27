@@ -44,7 +44,6 @@ type Settings struct {
 	SocketWriteTimeout  int
 	PrintVersion        bool
 	NoLogTimeStamps     bool
-	NoAccessLog         bool
 	RemoteHTTPS         bool
 	ForceRemoteHost     string
 }
@@ -68,6 +67,7 @@ func NewProxyInstance(args Settings) *Instance {
 
 	proxyInstance := Instance{}
 	proxyInstance.Options = args
+	proxyInstance.HTTPClient = newHTTPClient(&proxyInstance.Options)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -108,10 +108,6 @@ func (proxy *Instance) startSocketServerAcceptLoop() {
 		ConnContext:  ConnContext,
 	}
 
-	if !proxy.Options.NoAccessLog {
-		server.Handler = accessLogHandler(server.Handler)
-	}
-
 	unixListener, err := net.Listen("unix", proxy.Options.SocketPath)
 	if err != nil {
 		panic(err)
@@ -148,16 +144,18 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 		if err == nil {
 			backendRequest.Header.Set("X-Auth-User", usr.Username)
 		} else {
+			backendRequest.Header.Set("X-Auth-User", fmt.Sprintf("#%d", cred.UID))
 			log.Printf("warning: cannot lookup user id %d: %v", cred.UID, err)
 		}
 		group, err := user.LookupGroupId(fmt.Sprintf("%d", cred.GID))
 		if err == nil {
 			backendRequest.Header.Set("X-Auth-Group", group.Name)
 		} else {
+			backendRequest.Header.Set("X-Auth-Group", fmt.Sprintf("#%d", cred.GID))
 			log.Printf("warning: cannot lookup group id %d: %v", cred.GID, err)
 		}
 	} else {
-		log.Printf("warning: cannot get peer credentials: %v", err)
+		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
 	}
 
 	backendResponse, err := proxy.HTTPClient.Do(backendRequest)

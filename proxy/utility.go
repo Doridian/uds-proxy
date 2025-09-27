@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -19,5 +18,5 @@ func writePidFile(pidFilePath string) error {
 		return nil
 	}
 	data := []byte(fmt.Sprintf("%d", os.Getpid()))
-	return ioutil.WriteFile(pidFilePath, data, 0644)
+	return os.WriteFile(pidFilePath, data, 0644)
 }

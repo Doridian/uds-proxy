@@ -16,7 +16,6 @@ func main() {
 	}
 
 	flag.BoolVar(&args.NoLogTimeStamps, "no-log-timestamps", false, "disable timestamps in log messages")
-	flag.BoolVar(&args.NoAccessLog, "no-access-log", false, "disable proxy access logging")
 	flag.BoolVar(&args.PrintVersion, "version", false, "print uds-proxy version")
 	flag.BoolVar(&args.RemoteHTTPS, "remote-https", false, "remote uses https://")
 	flag.StringVar(&args.ForceRemoteHost, "force-remote-host", "", "force all requests to be sent to this host (name or ip)")
