@@ -28,7 +28,6 @@ func main() {
 	flag.IntVar(&args.SocketReadTimeout, "socket-read-timeout", 5500, "read timeout [ms] for -socket")
 	flag.IntVar(&args.SocketWriteTimeout, "socket-write-timeout", 5500, "write timeout [ms] for -socket")
 
-	flag.StringVar(&args.PidFile, "pid-file", "", "pid file to use, none if empty")
 	flag.StringVar(&args.SocketPath, "socket", os.Getenv("UDS_PROXY_SOCKET"), "path of socket to create")
 
 	flag.Parse()

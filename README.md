@@ -48,8 +48,6 @@ Usage of ./uds-proxy:
         maximum number of idle conns per backend (default 15)
   -no-log-timestamps
         disable timestamps in log messages
-  -pid-file string
-        pid file to use, none if empty
   -remote-https
         remote uses https://
   -socket string

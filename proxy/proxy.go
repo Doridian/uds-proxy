@@ -34,7 +34,6 @@ type Instance struct {
 // Settings configure a Instance and need to be passed to NewProxyInstance().
 type Settings struct {
 	SocketPath          string
-	PidFile             string
 	ClientTimeout       int
 	MaxConnsPerHost     int
 	MaxIdleConns        int
@@ -63,8 +62,6 @@ func NewProxyInstance(args Settings) *Instance {
 	}
 	log.Printf("👋 uds-proxy %s, pid %d starting...", AppVersion, os.Getpid())
 
-	writePidFile(args.PidFile)
-
 	proxyInstance := Instance{}
 	proxyInstance.Options = args
 	proxyInstance.HTTPClient = newHTTPClient(&proxyInstance.Options)
@@ -89,7 +86,6 @@ func (proxy *Instance) Shutdown(sig os.Signal) {
 	log.Printf("%v -- cleaning up", sig)
 	proxy.HTTPClient.CloseIdleConnections()
 	os.Remove(proxy.Options.SocketPath)
-	os.Remove(proxy.Options.PidFile)
 	log.Print("uds-proxy shut down cleanly. nice. good bye 👋")
 }
 
