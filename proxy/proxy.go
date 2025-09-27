@@ -14,9 +14,12 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"os/user"
 	"runtime"
 	"syscall"
 	"time"
+
+	"github.com/joeshaw/peercred"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -111,7 +114,9 @@ func (proxy *Instance) startSocketServerAcceptLoop() {
 	server := http.Server{
 		ReadTimeout:  time.Duration(proxy.Options.SocketReadTimeout) * time.Millisecond,
 		WriteTimeout: time.Duration(proxy.Options.SocketWriteTimeout) * time.Millisecond,
-		Handler:      http.HandlerFunc(proxy.handleProxyRequest)}
+		Handler:      http.HandlerFunc(proxy.handleProxyRequest),
+		ConnContext:  ConnContext,
+	}
 
 	if proxy.metrics.enabled {
 		server.Handler = promhttp.InstrumentHandlerInFlight(proxy.metrics.RequestsInflight,
@@ -147,6 +152,25 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 	}
 	backendRequest.Header = clientRequest.Header
 	backendRequest.Header.Set("X-Request-Via", "uds-proxy")
+
+	conn := GetNetConn(clientRequest)
+	cred, err := peercred.Read(conn.(*net.UnixConn))
+	if err == nil {
+		usr, err := user.LookupId(fmt.Sprintf("%d", cred.UID))
+		if err == nil {
+			backendRequest.Header.Set("X-Auth-User", usr.Username)
+		} else {
+			log.Printf("warning: cannot lookup user id %d: %v", cred.UID, err)
+		}
+		group, err := user.LookupGroupId(fmt.Sprintf("%d", cred.GID))
+		if err == nil {
+			backendRequest.Header.Set("X-Auth-Group", group.Name)
+		} else {
+			log.Printf("warning: cannot lookup group id %d: %v", cred.GID, err)
+		}
+	} else {
+		log.Printf("warning: cannot get peer credentials: %v", err)
+	}
 
 	backendResponse, err := proxy.HTTPClient.Do(backendRequest)
 	if err != nil {
