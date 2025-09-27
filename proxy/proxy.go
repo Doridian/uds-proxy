@@ -140,18 +140,20 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 	conn := GetNetConn(clientRequest)
 	cred, err := peercred.Read(conn.(*net.UnixConn))
 	if err == nil {
-		usr, err := user.LookupId(fmt.Sprintf("%d", cred.UID))
+		uidStr := fmt.Sprintf("%d", cred.UID)
+		usr, err := user.LookupId(uidStr)
 		if err == nil {
 			backendRequest.Header.Set("X-Auth-User", usr.Username)
 		} else {
-			backendRequest.Header.Set("X-Auth-User", fmt.Sprintf("#%d", cred.UID))
+			backendRequest.Header.Set("X-Auth-User", uidStr)
 			log.Printf("warning: cannot lookup user id %d: %v", cred.UID, err)
 		}
-		group, err := user.LookupGroupId(fmt.Sprintf("%d", cred.GID))
+		gidStr := fmt.Sprintf("%d", cred.GID)
+		group, err := user.LookupGroupId(gidStr)
 		if err == nil {
 			backendRequest.Header.Set("X-Auth-Group", group.Name)
 		} else {
-			backendRequest.Header.Set("X-Auth-Group", fmt.Sprintf("#%d", cred.GID))
+			backendRequest.Header.Set("X-Auth-Group", gidStr)
 			log.Printf("warning: cannot lookup group id %d: %v", cred.GID, err)
 		}
 	} else {
