@@ -160,7 +160,10 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 		}
 	} else {
 		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	backendRequest.Header.Set("X-Forwarded-For", "127.0.0.1")
 
 	backendResponse, err := proxy.HTTPClient.Do(backendRequest)
 	if err != nil {
