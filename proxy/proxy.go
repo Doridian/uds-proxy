@@ -146,21 +146,18 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 		return
 	}
 
-	uidStr := fmt.Sprintf("%d", cred.UID)
-	usr, err := user.LookupId(uidStr)
+	usr, err := user.LookupId(fmt.Sprintf("%d", cred.UID))
 	if err != nil {
 		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	backendRequest.Header.Set("X-Auth-User", usr.Username)
-	gidStr := fmt.Sprintf("%d", cred.GID)
-	group, err := user.LookupGroupId(gidStr)
+
+	group, err := user.LookupGroupId(fmt.Sprintf("%d", cred.GID))
 	if err != nil {
 		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	backendRequest.Header.Set("X-Auth-Group", group.Name)
 
 	backendRequest.Header.Del("X-Auth-Roles")
