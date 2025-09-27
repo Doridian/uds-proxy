@@ -21,8 +21,8 @@ build: $(BINARY)
 $(BINARY): cmd/uds-proxy/main.go proxy/*.go
 	go build -ldflags='-w -s $(LDFLAGS)' ./cmd/uds-proxy
 
-test_server: cmd/test_server/main.go proxy_test_server/server.go
-	go build ./cmd/test_server
+test_server: cmd/_test_server/main.go proxy_test_server/server.go
+	go build ./cmd/_test_server
 
 zip: $(BINARY)
 	zip $(BINARY)_$(GOOS)-$(GOARCH)_$(VERSION).zip $(BINARY)
@@ -42,7 +42,7 @@ run_proxy_docker:
 	chmod 777 $(TEST_DOCKERIZED_SOCKET_DIR)
 
 run_test_server: test_server
-	./test_server
+	./_test_server
 
 run_test_server_docker:
 	echo "INFO: run_test_server_docker is a noop, it's always started via docker-compose"
