@@ -179,6 +179,9 @@ func newHTTPClient(opt *Settings, metricsEnabled bool) (client *http.Client) {
 	client = &http.Client{
 		Timeout:   time.Duration(opt.ClientTimeout) * time.Millisecond,
 		Transport: &transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 	if metricsEnabled {
 		client.Transport = getTracingRoundTripper(&transport)
