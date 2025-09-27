@@ -29,6 +29,7 @@ func main() {
 	flag.IntVar(&args.SocketWriteTimeout, "socket-write-timeout", 5500, "write timeout [ms] for -socket")
 
 	flag.StringVar(&args.SocketPath, "socket", os.Getenv("UDS_PROXY_SOCKET"), "path of socket to create")
+	flag.IntVar(&args.SocketMode, "socket-mode", 0755, "file mode of socket to create")
 
 	flag.Parse()
 

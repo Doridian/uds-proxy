@@ -34,6 +34,7 @@ type Instance struct {
 // Settings configure a Instance and need to be passed to NewProxyInstance().
 type Settings struct {
 	SocketPath          string
+	SocketMode          int
 	ClientTimeout       int
 	MaxConnsPerHost     int
 	MaxIdleConns        int
@@ -105,6 +106,10 @@ func (proxy *Instance) startSocketServerAcceptLoop() {
 	}
 
 	unixListener, err := net.Listen("unix", proxy.Options.SocketPath)
+	if err != nil {
+		panic(err)
+	}
+	err = os.Chmod(proxy.Options.SocketPath, os.FileMode(proxy.Options.SocketMode))
 	if err != nil {
 		panic(err)
 	}
