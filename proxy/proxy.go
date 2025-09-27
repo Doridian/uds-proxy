@@ -50,6 +50,7 @@ type Settings struct {
 	NoLogTimeStamps     bool
 	NoAccessLog         bool
 	RemoteHTTPS         bool
+	ForceRemoteHost     string
 }
 
 // NewProxyInstance validates supplied Settings and returns a ready-to-run proxy instance.
@@ -141,15 +142,21 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 	scheme := "http"
 	if proxy.Options.RemoteHTTPS {
 		scheme = "https"
-
 	}
-	targetURL := fmt.Sprintf("%s://%s%s", scheme, clientRequest.Host, clientRequest.URL)
+
+	targetHost := clientRequest.Host
+	if proxy.Options.ForceRemoteHost != "" {
+		targetHost = proxy.Options.ForceRemoteHost
+	}
+
+	targetURL := fmt.Sprintf("%s://%s%s", scheme, targetHost, clientRequest.URL)
 
 	backendRequest, err := http.NewRequest(clientRequest.Method, targetURL, clientRequest.Body)
 	if err != nil {
 		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	backendRequest.Host = clientRequest.Host
 	backendRequest.Header = clientRequest.Header
 	backendRequest.Header.Set("X-Request-Via", "uds-proxy")
 
