@@ -16,9 +16,7 @@
             version = "0.1.0";
             src = ./.;
             vendorHash = "sha256-sJ7zGgRoznzVgemFliF02uaPLIXaAAjz21movPsAJ8E=";
-            buildInputs = [
-              # to be filled later
-            ];
+            buildInputs = [];
           };
         };
       });
