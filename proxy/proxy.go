@@ -147,22 +147,23 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 		if err == nil {
 			backendRequest.Header.Set("X-Auth-User", usr.Username)
 		} else {
-			backendRequest.Header.Set("X-Auth-User", uidStr)
-			log.Printf("warning: cannot lookup user id %d: %v", cred.UID, err)
+			http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		gidStr := fmt.Sprintf("%d", cred.GID)
 		group, err := user.LookupGroupId(gidStr)
 		if err == nil {
 			backendRequest.Header.Set("X-Auth-Group", group.Name)
 		} else {
-			backendRequest.Header.Set("X-Auth-Group", gidStr)
-			log.Printf("warning: cannot lookup group id %d: %v", cred.GID, err)
+			http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	} else {
 		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	backendRequest.Header.Del("X-Auth-Roles")
 	backendRequest.Header.Set("X-Forwarded-For", "127.0.0.1")
 
 	backendResponse, err := proxy.HTTPClient.Do(backendRequest)
