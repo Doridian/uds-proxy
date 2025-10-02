@@ -20,7 +20,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/joeshaw/peercred"
+	"github.com/Doridian/peercred"
 )
 
 // AppVersion is set at compile time via make / ldflags

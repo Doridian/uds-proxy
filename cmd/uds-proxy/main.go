@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/schnoddelbotz/uds-proxy/proxy"
+	"github.com/Doridian/uds-proxy/proxy"
 )
 
 func main() {

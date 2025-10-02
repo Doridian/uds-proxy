@@ -1,4 +1,4 @@
-github.com/joeshaw/peercred v0.0.0-20200928174302-6d43623cf0ff h1:VWnGXLgNsrotOvZbQsB05Mz5QTLS2eGLYyfTlChbGAE=
-github.com/joeshaw/peercred v0.0.0-20200928174302-6d43623cf0ff/go.mod h1:MQ1ideI6aSvIM4/wxn5uV5+OFskSyeDsF8ImdGb9CGk=
-golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c h1:38q6VNPWR010vN82/SB121GujZNIfAUb4YttE2rhGuc=
-golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+github.com/Doridian/peercred v0.0.0-20251002044523-f169f71214ec h1:OtSM6Hra9F+DvDoWIlJVkDp1XDQ2+OM8Iwl6BsrOozw=
+github.com/Doridian/peercred v0.0.0-20251002044523-f169f71214ec/go.mod h1:joCGWFg0+RPNFRjkMZwwcRRue6F8FbtFGXoZJHCvrRQ=
+golang.org/x/sys v0.36.0 h1:KVRy2GtZBrk1cBYA7MKu5bEZFxQk4NIDV6RLVcC8o0k=
+golang.org/x/sys v0.36.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
