@@ -146,19 +146,23 @@ func (proxy *Instance) handleProxyRequest(clientResponseWriter http.ResponseWrit
 		return
 	}
 
-	usr, err := user.LookupId(fmt.Sprintf("%d", cred.UID))
-	if err != nil {
-		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
-		return
+	uidStr := fmt.Sprintf("%d", cred.UID)
+	backendRequest.Header.Set("X-Auth-UID", uidStr)
+	usr, err := user.LookupId(uidStr)
+	if err == nil {
+		backendRequest.Header.Set("X-Auth-User", usr.Username)
+	} else {
+		backendRequest.Header.Del("X-Auth-User")
 	}
-	backendRequest.Header.Set("X-Auth-User", usr.Username)
 
-	group, err := user.LookupGroupId(fmt.Sprintf("%d", cred.GID))
-	if err != nil {
-		http.Error(clientResponseWriter, err.Error(), http.StatusInternalServerError)
-		return
+	gidStr := fmt.Sprintf("%d", cred.GID)
+	backendRequest.Header.Set("X-Auth-GID", gidStr)
+	group, err := user.LookupGroupId(gidStr)
+	if err == nil {
+		backendRequest.Header.Set("X-Auth-Group", group.Name)
+	} else {
+		backendRequest.Header.Del("X-Auth-Group")
 	}
-	backendRequest.Header.Set("X-Auth-Group", group.Name)
 
 	backendRequest.Header.Del("X-Auth-Roles")
 	backendRequest.Header.Set("X-Forwarded-For", "127.0.0.1")
