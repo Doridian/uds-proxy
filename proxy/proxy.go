@@ -195,7 +195,7 @@ func newHTTPClient(opt *Settings) (client *http.Client) {
 		MaxIdleConnsPerHost:   opt.MaxIdleConnsPerHost,
 		IdleConnTimeout:       time.Duration(opt.IdleConnTimeout) * time.Millisecond,
 		TLSHandshakeTimeout:   5 * time.Second,
-		ExpectContinueTimeout: 5 * time.Second,
+		ExpectContinueTimeout: 1 * time.Hour,
 		TLSClientConfig:       &tls.Config{InsecureSkipVerify: opt.InsecureSkipVerify},
 	}
 	client = &http.Client{
